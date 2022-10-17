@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ioos_qc.utils &#8212; ioos_qc 2.0.2.dev69+g569d29f documentation</title>
+    <title>ioos_qc.utils &#8212; ioos_qc 2.0.2.dev77+gd9c564f documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -89,30 +89,37 @@
 
     <span class="c1"># Iterate over variables and construct a config object</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">odict</span><span class="p">()</span>
-    <span class="n">source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">filter_by_attrs</span><span class="p">(</span>
+    <span class="n">qc_dataset</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">filter_by_attrs</span><span class="p">(</span>
         <span class="n">ioos_qc_module</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ioos_qc_test</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ioos_qc_config</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ioos_qc_target</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">dv</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">dv</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">vobj</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">dv</span><span class="p">]</span>
 
-        <span class="c1"># Because a data variables can have more than one check</span>
-        <span class="c1"># associated with it we need to merge any existing configs</span>
-        <span class="c1"># for this variable</span>
-        <span class="n">newdict</span> <span class="o">=</span> <span class="n">odict</span><span class="p">({</span>
-            <span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_module</span><span class="p">:</span> <span class="n">odict</span><span class="p">({</span>
-                <span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_test</span><span class="p">:</span> <span class="n">odict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_config</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">dv</span> <span class="ow">in</span> <span class="n">qc_dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">dv</span> <span class="ow">in</span> <span class="n">qc_dataset</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">vobj</span> <span class="o">=</span> <span class="n">qc_dataset</span><span class="p">[</span><span class="n">dv</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Because a data variables can have more than one check</span>
+            <span class="c1"># associated with it we need to merge any existing configs</span>
+            <span class="c1"># for this variable</span>
+            <span class="n">newdict</span> <span class="o">=</span> <span class="n">odict</span><span class="p">({</span>
+                <span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_module</span><span class="p">:</span> <span class="n">odict</span><span class="p">({</span>
+                    <span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_test</span><span class="p">:</span> <span class="n">odict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_config</span><span class="p">))</span>
+                <span class="p">})</span>
             <span class="p">})</span>
-        <span class="p">})</span>
-        <span class="n">merged</span> <span class="o">=</span> <span class="n">dict_update</span><span class="p">(</span>
-            <span class="n">y</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_target</span><span class="p">,</span> <span class="p">{}),</span>
-            <span class="n">newdict</span>
-        <span class="p">)</span>
-        <span class="n">y</span><span class="p">[</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_target</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged</span>
+            <span class="n">merged</span> <span class="o">=</span> <span class="n">dict_update</span><span class="p">(</span>
+                <span class="n">y</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_target</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="n">newdict</span>
+            <span class="p">)</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">vobj</span><span class="o">.</span><span class="n">ioos_qc_target</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="n">L</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not pull QC config from </span><span class="si">{</span><span class="n">vobj</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, skipping&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
 
     <span class="c1"># If we opened this xarray dataset from a file we should close it</span>
     <span class="k">if</span> <span class="n">to_close</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
